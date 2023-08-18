@@ -12,14 +12,14 @@ namespace Chase.Win32.Tray;
 
 public class TrayIcon
 {
-    private readonly string icon;
-    private readonly string label;
     private NOTIFYICONDATA notifyIconData;
+    public string Label { get; private set; }
+    public string Icon { get; private set; }
 
-    public TrayIcon(string label, string icon)
+    internal TrayIcon(string label, string icon)
     {
-        this.label = label;
-        this.icon = icon;
+        Label = label;
+        Icon = icon;
 
         AppDomain.CurrentDomain.ProcessExit += (s, e) =>
         {
@@ -38,8 +38,8 @@ public class TrayIcon
                 uID = 0,
                 uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP,
                 uCallbackMessage = WM_USER,
-                hIcon = LoadIconFromFile(icon),
-                szTip = label
+                hIcon = LoadIconFromFile(Icon),
+                szTip = Label
             };
 
             return Shell_NotifyIconW(NIM_ADD, ref notifyIconData);
@@ -50,6 +50,18 @@ public class TrayIcon
             Console.Error.WriteLine(e.StackTrace ?? "");
             return false;
         }
+    }
+
+    public bool UpdateIcon(string newIcon)
+    {
+        Icon = newIcon;
+        return Destroy() && Create();
+    }
+
+    public bool UpdateLabel(string label)
+    {
+        Label = label;
+        return Destroy() && Create();
     }
 
     public bool Destroy()
