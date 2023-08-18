@@ -10,15 +10,47 @@ namespace Chase.Win32.Tray;
 public sealed class TrayIconBuilder
 {
     private string icon, label;
+    private Action onClick, onContext;
+    private List<ContextMenuItem> items;
+    private Balloon balloon;
 
     public TrayIconBuilder(string label, string icon)
     {
         this.label = label;
         this.icon = icon;
+        items = new();
+    }
+
+    public TrayIconBuilder AddLeftClickEvent(Action onClick)
+    {
+        this.onClick = onClick;
+        return this;
+    }
+
+    public TrayIconBuilder AddRightClickEvent(Action onClick)
+    {
+        onContext = onClick;
+        return this;
+    }
+
+    public TrayIconBuilder AddContextMenuItem(ContextMenuItem item)
+    {
+        return this;
+    }
+
+    public TrayIconBuilder AddBalloon(Balloon balloon)
+    {
+        this.balloon = balloon;
+
+        return this;
     }
 
     public TrayIcon Build()
     {
-        return new TrayIcon(label, icon);
+        TrayIcon tray = new(label, icon);
+
+        return tray;
     }
+
+    public bool BuildCreate(out TrayIcon trayIcon) => (trayIcon = Build()).Create();
 }
